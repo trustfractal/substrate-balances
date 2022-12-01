@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "GPL-3.0-only",
   "scripts": {
-    "start": "node polkadot.js"
+    "mainnet": "node fractalMainnet.js",
+    "devnet": "node fractalDevnet.js"
   },
   "dependencies": {
     "@polkadot/api": "9.2.3",
