@@ -20,24 +20,23 @@ exports.takeSnapshotOfAllBalances = async ({ endpoint, networkName, outputFileNa
 
   console.log(`Fetching all accounts... this may take a while`)
   const allAccounts = await substrate.query.system.account.entries()
+  const blockNumber = await substrate.query.system.number()
+  outputFileName = outputFileName.replace(/(\.csv)/, `-${blockNumber.toString()}$1`)
 
   console.log('Writing balances to the file:', outputFileName)
   const stream = createWriteStream(outputFileName, { flags: 'a' })
-  stream.write(`AccountId,Free,Reserved,Total\n`)
+  stream.write(`AccountId,Free\n`)
 
   for (account of allAccounts) {
     const address = encodeAddress(account[0].slice(-32))
     const free = account[1].data.free
-    const reserved = account[1].data.reserved
     const freeUnit = toUnit(free, chainDecimals)
-    const reservedUnit = toUnit(reserved, chainDecimals)
-    const totalUnit = toUnit(free.add(reserved), chainDecimals)
 
-    stream.write(`${address},${freeUnit},${reservedUnit},${totalUnit}\n`)
+    stream.write(`${address},${freeUnit}\n`)
   }
 
   stream.end()
-  console.log('All balances written')
+  console.log(`All balances written (${allAccounts.length})`)
   console.log('Substrate connection closed')
   await substrate.disconnect()
 }
