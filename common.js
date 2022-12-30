@@ -11,7 +11,7 @@ const toUnit = (balance, decimals) => {
 
 exports.takeSnapshotOfAllBalances = async ({ endpoint, networkName, outputFileName }) => {
   console.log(`Connecting to ${endpoint}...`)
-  const provider = new WsProvider(endpoint)
+  const provider = new WsProvider(endpoint)//, undefined, undefined, 10 * 1000)
   const substrate = await ApiPromise.create({ provider })
   await substrate.isReady
 
