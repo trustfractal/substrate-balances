@@ -29,6 +29,8 @@ const main = async () => {
   const fileContents = fs.readFileSync(process.env.JSONS_FILENAME, "utf-8");
   const fileLines = fileContents.split(/\r?\n/).slice(0, -1);
 
+  console.log();
+
   for (const line of fileLines) {
     const transfer = JSON.parse(line);
 
@@ -49,12 +51,20 @@ const main = async () => {
       tmpBalance >= transferAmount,
     );
 
+    if (tmpBalance === 0) { continue; }
+
+    // FIXME: subtract extrinsic weight
+
     const tx = substrate.tx.balances.transfer(sender, tmpBalance);
     const keyring = new Keyring({ type: "sr25519" });
     if (phrases[tmpAddress]) {
-      keyring.addFromUri(phrases[tmpAddress]);
-      await tx.signAndSend(keyring, (result) => (console.log(result)));
+      const signer = keyring.addFromUri(phrases[tmpAddress]);
+      console.log(`Sending ${toUnit(tmpBalance)} FCL from ${tmpAddress} to ${sender}`);
+      const txHash = await tx.signAndSend(signer);
+      console.log(txHash);
     }
+
+    console.log();
   };
 
   console.log('Substrate connection closed')
